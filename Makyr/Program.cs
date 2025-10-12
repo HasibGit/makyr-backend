@@ -29,35 +29,6 @@ try
 {
     var context = services.GetRequiredService<DataContext>();
     await context.Database.MigrateAsync();
-
-    var userManager = services.GetRequiredService<UserManager<AppUser>>();
-
-    string testUsername = "testuser";
-    string testEmail = "testuser@example.com";
-    string testPassword = "minFiCo34$%";
-
-    if (await userManager.FindByNameAsync(testUsername) == null)
-    {
-        var testUser = new AppUser
-        {
-            UserName = testUsername,
-            Email = testEmail,
-            EmailConfirmed = true
-        };
-
-        var result = await userManager.CreateAsync(testUser, testPassword);
-
-        if (result.Succeeded)
-        {
-            var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogInformation("Test user created successfully!");
-        }
-        else
-        {
-            var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogError("Failed to create test user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
-        }
-    }
 }
 catch (Exception ex)
 {
