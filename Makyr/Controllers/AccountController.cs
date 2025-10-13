@@ -1,0 +1,58 @@
+using API.DTOs;
+using API.Entities;
+using API.Interfaces;
+using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AccountController(UserManager<AppUser> userManager, ITokenService tokenService, IMapper mapper) : ControllerBase
+    {
+        [HttpPost("register")]
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        {
+            if (await UserNameExists(registerDto.UserName))
+            {
+                return BadRequest("User name already exists!");
+            }
+
+            if (await EmailExists(registerDto.Email))
+            {
+                return BadRequest("Email already exists");
+            }
+
+            var user = mapper.Map<AppUser>(registerDto);
+            user.KnownAs = registerDto.UserName;
+
+            var result = await userManager.CreateAsync(user, registerDto.Password);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return new UserDto
+            {
+                UserName = user.UserName!,
+                Token = await tokenService.CreateToken(user),
+                KnownAs = user.KnownAs,
+            };
+
+        }
+
+        private async Task<bool> EmailExists(string email)
+        {
+            return await userManager.Users.AnyAsync(user => user.Email == email);
+        }
+
+        private async Task<bool> UserNameExists(string userName)
+        {
+            return await userManager.Users.AnyAsync(user => user.NormalizedUserName == userName.ToUpper());
+        }
+    }
+}
