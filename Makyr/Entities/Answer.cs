@@ -6,7 +6,7 @@ public class Answer
 {
     public int Id { get; set; }
     public string Description { get; set; } = string.Empty;
-    public string? Attachments { get; set; }
+    public List<AnswerAttachment> Attachments { get; set; } = new();
     public int Upvotes { get; set; }
     public int Downvotes { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

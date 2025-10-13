@@ -8,7 +8,7 @@ public class Question
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string? Tags { get; set; }
-    public string? Attachments { get; set; }
+    public List<QuestionAttachment> Attachments { get; set; } = new();
     public int Upvotes { get; set; }
     public int Downvotes { get; set; }
     public bool IsResolved { get; set; } = false;
