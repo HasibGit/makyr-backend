@@ -1,5 +1,6 @@
 using API.DTOs;
 using API.Entities;
+using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -18,12 +19,12 @@ namespace API.Controllers
         {
             if (await UserNameExists(registerDto.UserName))
             {
-                return BadRequest("User name already exists!");
+                return BadRequest(new ApiError { StatusCode = 400, Message = "User name already exists" });
             }
 
             if (await EmailExists(registerDto.Email))
             {
-                return BadRequest("Email already exists");
+                return BadRequest(new ApiError { StatusCode = 400, Message = "Email already exists" });
             }
 
             var user = mapper.Map<AppUser>(registerDto);
