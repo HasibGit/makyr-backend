@@ -8,86 +8,86 @@ namespace API.Data;
 
 public class DataContext : IdentityDbContext<AppUser>
 {
-      public DataContext(DbContextOptions<DataContext> options) : base(options)
-      {
-      }
+  public DataContext(DbContextOptions<DataContext> options) : base(options)
+  {
+  }
 
-      public DbSet<Photo> Photos { get; set; } = null!;
-      public DbSet<Question> Questions { get; set; } = null!;
-      public DbSet<Answer> Answers { get; set; } = null!;
-      public DbSet<QuestionAttachment> QuestionAttachments { get; set; } = null!;
-      public DbSet<AnswerAttachment> AnswerAttachments { get; set; } = null!;
+  public DbSet<Photo> Photos { get; set; } = null!;
+  public DbSet<Question> Questions { get; set; } = null!;
+  public DbSet<Answer> Answers { get; set; } = null!;
+  public DbSet<QuestionAttachment> QuestionAttachments { get; set; } = null!;
+  public DbSet<AnswerAttachment> AnswerAttachments { get; set; } = null!;
 
-      protected override void OnModelCreating(ModelBuilder builder)
-      {
-            base.OnModelCreating(builder);
+  protected override void OnModelCreating(ModelBuilder builder)
+  {
+    base.OnModelCreating(builder);
 
-            builder.Entity<AppUser>(entity =>
-            {
-                  entity.HasMany(user => user.Photos)
-                    .WithOne(photo => photo.AppUser)
-                    .HasForeignKey(photo => photo.AppUserId)
+    builder.Entity<AppUser>(entity =>
+    {
+      entity.HasOne(user => user.Photo)
+                .WithOne(photo => photo.AppUser)
+                .HasForeignKey<Photo>(photo => photo.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+      entity.HasMany(user => user.Questions)
+                .WithOne(question => question.AppUser)
+                .HasForeignKey(question => question.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+      entity.HasMany(user => user.Answers)
+                .WithOne(answer => answer.AppUser)
+                .HasForeignKey(answer => answer.AppUserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+    });
+
+    builder.Entity<Photo>(entity =>
+    {
+      entity.Property(p => p.Url)
+                .IsRequired();
+    });
+
+    builder.Entity<QuestionAttachment>(entity =>
+    {
+      entity.Property(attachment => attachment.Url)
+                .IsRequired();
+
+      entity.HasOne(attachment => attachment.Question)
+                    .WithMany(question => question.Attachments)
+                    .HasForeignKey(attachment => attachment.QuestionId)
                     .OnDelete(DeleteBehavior.Cascade);
+    });
 
-                  entity.HasMany(user => user.Questions)
-                    .WithOne(question => question.AppUser)
-                    .HasForeignKey(question => question.AppUserId)
+    builder.Entity<AnswerAttachment>(entity =>
+    {
+      entity.Property(attachment => attachment.Url)
+                .IsRequired();
+
+      entity.HasOne(attachment => attachment.Answer)
+                    .WithMany(answer => answer.Attachments)
+                    .HasForeignKey(attachment => attachment.AnswerId)
                     .OnDelete(DeleteBehavior.Cascade);
+    });
 
-                  entity.HasMany(user => user.Answers)
-                    .WithOne(answer => answer.AppUser)
-                    .HasForeignKey(answer => answer.AppUserId)
-                      .OnDelete(DeleteBehavior.Cascade);
-            });
+    builder.Entity<Question>(entity =>
+    {
+      entity.Property(question => question.Title)
+                .IsRequired()
+                .HasMaxLength(200);
 
-            builder.Entity<Photo>(entity =>
-            {
-                  entity.Property(p => p.Url)
-                    .IsRequired();
-            });
+      entity.Property(question => question.Description)
+                .IsRequired();
 
-            builder.Entity<QuestionAttachment>(entity =>
-            {
-                  entity.Property(attachment => attachment.Url)
-                    .IsRequired();
+      entity.HasMany(question => question.Answers)
+                .WithOne(answer => answer.Question)
+                .HasForeignKey(answer => answer.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
+    });
 
-                  entity.HasOne(attachment => attachment.Question)
-                        .WithMany(question => question.Attachments)
-                        .HasForeignKey(attachment => attachment.QuestionId)
-                        .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            builder.Entity<AnswerAttachment>(entity =>
-            {
-                  entity.Property(attachment => attachment.Url)
-                    .IsRequired();
-
-                  entity.HasOne(attachment => attachment.Answer)
-                        .WithMany(answer => answer.Attachments)
-                        .HasForeignKey(attachment => attachment.AnswerId)
-                        .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            builder.Entity<Question>(entity =>
-            {
-                  entity.Property(question => question.Title)
-                    .IsRequired()
-                    .HasMaxLength(200);
-
-                  entity.Property(question => question.Description)
-                    .IsRequired();
-
-                  entity.HasMany(question => question.Answers)
-                    .WithOne(answer => answer.Question)
-                    .HasForeignKey(answer => answer.QuestionId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            builder.Entity<Answer>(entity =>
-            {
-                  entity.Property(answer => answer.Description)
-                    .IsRequired();
-            });
-      }
+    builder.Entity<Answer>(entity =>
+    {
+      entity.Property(answer => answer.Description)
+                .IsRequired();
+    });
+  }
 
 }

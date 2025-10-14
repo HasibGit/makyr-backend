@@ -15,7 +15,7 @@ public class AppUser : IdentityUser
     public string? Country { get; set; }
 
     // Navigation Properties
-    public ICollection<Photo> Photos { get; set; } = new List<Photo>();
+    public Photo? Photo { get; set; }
     public ICollection<Question> Questions { get; set; } = new List<Question>();
     public ICollection<Answer> Answers { get; set; } = new List<Answer>();
 }

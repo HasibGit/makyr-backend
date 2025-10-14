@@ -46,6 +46,33 @@ namespace API.Controllers
 
         }
 
+        [HttpPost("login")]
+        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+        {
+            var user = await userManager.Users.Include(user => user.Photo)
+                                        .FirstOrDefaultAsync(user => user.Email == loginDto.Email);
+
+            if (user is null)
+            {
+                return Unauthorized(new ApiError { StatusCode = 401, Message = "Invalid email or password" });
+            }
+
+            var isPasswordValid = await userManager.CheckPasswordAsync(user, loginDto.Password);
+
+            if (!isPasswordValid)
+            {
+                return Unauthorized(new ApiError { StatusCode = 401, Message = "Invalid email or password" });
+            }
+
+            return new UserDto
+            {
+                UserName = user.UserName!,
+                Token = await tokenService.CreateToken(user),
+                KnownAs = user.KnownAs,
+                PhotoUrl = user.Photo?.Url
+            };
+        }
+
         private async Task<bool> EmailExists(string email)
         {
             return await userManager.Users.AnyAsync(user => user.Email == email);
