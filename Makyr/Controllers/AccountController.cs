@@ -19,12 +19,12 @@ namespace API.Controllers
         {
             if (await UserNameExists(registerDto.UserName))
             {
-                return BadRequest(new ApiError { StatusCode = 400, Message = "User name already exists" });
+                return BadRequest(new ApiError(400, "User name already exists"));
             }
 
             if (await EmailExists(registerDto.Email))
             {
-                return BadRequest(new ApiError { StatusCode = 400, Message = "Email already exists" });
+                return BadRequest(new ApiError(400, "Email already exists"));
             }
 
             var user = mapper.Map<AppUser>(registerDto);
@@ -54,14 +54,14 @@ namespace API.Controllers
 
             if (user is null)
             {
-                return Unauthorized(new ApiError { StatusCode = 401, Message = "Invalid email or password" });
+                return Unauthorized(new ApiError(401, "Invalid email or password"));
             }
 
             var isPasswordValid = await userManager.CheckPasswordAsync(user, loginDto.Password);
 
             if (!isPasswordValid)
             {
-                return Unauthorized(new ApiError { StatusCode = 401, Message = "Invalid email or password" });
+                return Unauthorized(new ApiError(401, "Invalid email or password"));
             }
 
             return new UserDto
