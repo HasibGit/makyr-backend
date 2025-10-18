@@ -13,7 +13,7 @@ namespace API.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController(IUserRepository userRepository, IMapper mapper) : ControllerBase
+    public class UsersController(IUserRepository userRepository, IPhotoService photoService, IMapper mapper) : ControllerBase
     {
         [HttpPut]
         public async Task<ActionResult> UpdateProfile(ProfileUpdateDto profileUpdateDto)
@@ -33,6 +33,33 @@ namespace API.Controllers
             }
 
             return BadRequest(new ApiError(400, "Profile update failed"));
+        }
+
+        [HttpPost("add-photo")]
+        public async Task<ActionResult<PhotoDto>> AddPhotoAsync(IFormFile file)
+        {
+            var user = await userRepository.GetUserByUserNameAsync(User.GetUserName());
+
+            if (user is null)
+            {
+                return BadRequest(new ApiError(401, "User not found"));
+            }
+
+            var result = await photoService.AddPhotoAsync(user, file);
+
+            if (result.Error is not null)
+            {
+                return BadRequest(new ApiError(401, result.Error.Message));
+            }
+
+            user.Photo = new Photo { PublicId = result.PublicId, Url = result.SecureUrl.AbsoluteUri };
+
+            if (await userRepository.SaveChangesAsync())
+            {
+                return Created(user.Photo.Url, mapper.Map<PhotoDto>(user.Photo));
+            }
+
+            return BadRequest(new ApiError(401, "Profile picture update failed"));
         }
     }
 }

@@ -4,6 +4,7 @@ using API.Interfaces;
 using API.Services;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using API.Helper;
 
 namespace API.Extensions;
 
@@ -24,6 +25,8 @@ public static class ApplicationServiceExtensions
 
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IPhotoService, PhotoService>();
+        services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
 
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
