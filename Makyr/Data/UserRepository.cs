@@ -23,6 +23,8 @@ public class UserRepository(DataContext context, IMapper mapper) : IUserReposito
     {
         var query = context.Users.AsQueryable();
 
+        query = query.Where(user => user.UserName != userParams.UserName);
+
         query.OrderByDescending(x => x.Created);
 
         return await PaginatedResponse<UserProfileDto>
