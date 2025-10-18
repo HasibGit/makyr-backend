@@ -15,6 +15,16 @@ namespace API.Controllers
     [ApiController]
     public class UsersController(IUserRepository userRepository, IPhotoService photoService, IMapper mapper) : ControllerBase
     {
+        [HttpGet]
+        public async Task<ActionResult<PaginatedResponse<UserProfileDto>>> GetUsers([FromBody] UserParams userParams)
+        {
+            userParams.UserName = User.GetUserName();
+
+            var users = await userRepository.GetUsers(userParams);
+
+            return Ok(users);
+        }
+
         [HttpPut]
         public async Task<ActionResult> UpdateProfile(ProfileUpdateDto profileUpdateDto)
         {
