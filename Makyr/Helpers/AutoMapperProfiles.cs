@@ -14,6 +14,6 @@ public class AutoMapperProfiles : Profile
         CreateMap<Photo, PhotoDto>();
         CreateMap<AppUser, UserProfileDto>()
             .ForMember(dest => dest.PhotoUrl, opt =>
-                opt.MapFrom(src => src.Photo!.Url));
+                opt.MapFrom(src => src.Photo != null ? src.Photo.Url : null));
     }
 }
