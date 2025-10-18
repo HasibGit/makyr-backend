@@ -61,5 +61,32 @@ namespace API.Controllers
 
             return BadRequest(new ApiError(401, "Profile picture update failed"));
         }
+
+        [HttpPost("delete-photo")]
+        public async Task<ActionResult> DeletePhotoAsync()
+        {
+            var user = await userRepository.GetUserByUserNameAsync(User.GetUserName());
+
+            if (user?.Photo?.PublicId is null)
+            {
+                return BadRequest(new ApiError(401, "User not found"));
+            }
+
+            var result = await photoService.DeletePhotoAsync(user.Photo.PublicId);
+
+            if (result.Error is not null)
+            {
+                return BadRequest(new ApiError(401, result.Error.Message));
+            }
+
+            user.Photo = null;
+
+            if (await userRepository.SaveChangesAsync())
+            {
+                return Ok();
+            }
+
+            return BadRequest(new ApiError(401, "Photo deletion failed"));
+        }
     }
 }
